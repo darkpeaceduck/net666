@@ -111,7 +111,7 @@ sock_mq::sock_mq(const sock_mq::param &param) {
                               min(attr.mq_maxmsg, MQ_PRIO_MAX) *
                                     sizeof(struct posix_msg_tree_node
     */
-    required += rlim.rlim_cur;
+    required += rlim.rlim_cur * MAXMQSYSTEM;
 
     if (rlim.rlim_cur < required) {
         rlim.rlim_cur = rlim.rlim_max = required;

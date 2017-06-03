@@ -94,19 +94,28 @@ public:
     size_t client_flush_request(T &controller, void * client_data, size_t req_sz, CTL_TYPE ctl) {
         __setup(&ctl);
 
+        LOG() << "client flush request : entered\n";
         if (__wrote_win_sz() == 0) {
+            LOG() << "client flush request : win wait not empty\n";
             ctl.call(controller, &T::input_win_wait_not_empty);
+            LOG() << "client flush request : win completed wait not empty\n";
             __setup(&ctl);
         }
 
         size_t sz = std::min(__wrote_win_sz(), req_sz);
+
         controller.input_buf_flush(*flushed_off, client_data, sz);
+        LOG() << "client flush request : flushed buf\n";
 
         *flushed_off += sz;
         __flush(&ctl);
 
-        if (__wrote_win_sz() == 0 && win.get_sz() == 0)
+        if (__wrote_win_sz() == 0 && win.get_sz() == 0) {
+            LOG() << "client flush request : signal compeletely flushed\n";
             ctl.call(controller, &T::input_win_signal_completely_flushed);
+            LOG() << "client flush request : end signal compeletely flushed\n";
+        }
+        LOG() << "client flush request : exit\n";
         return sz;
     }
 };

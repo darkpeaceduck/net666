@@ -2,7 +2,7 @@
 
 CXX ?= g++
 
-CFLAGS=-Werror -std=c++14 -pthread 
+CFLAGS=-Werror -std=c++14 -pthread -DNOLOG
 LDFLAGS=-lrt
 
 SRC_DIR=src
@@ -24,7 +24,7 @@ DEPS_OBJS=$(DEPS_SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 BIN64_DEPS=
 BIN32_DEPS=
 
-BIN64_SRC=$(SRC_DIR)/test.cpp
+BIN64_SRC=$(SRC_DIR)/server_chat.cpp
 BIN32_SRC=$(SRC_DIR)/test.cpp
 BOOST_TEST_SRC=$(SRC_DIR)/tcp_test_boost.cpp
 
@@ -32,7 +32,7 @@ BIN64_OBJS=$(BIN64_SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 BIN32_OBJS=$(BIN32_SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 BOOST_TEST_OBJS=$(BOOST_TEST_SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
-all:$(BOOST_TEST)
+all:$(BOOST_TEST) $(BIN64)
 	
 $(BIN64):$(BIN_DIR) $(BIN64_OBJS) $(DEPS_OBJS)
 	$(CXX) $(CFLAGS) $(BIN64_OBJS) $(DEPS_OBJS) $(LDFLAGS) -o $(BIN64)

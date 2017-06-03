@@ -17,6 +17,7 @@
 #include "proto.h"
 #include "tcp_log.h"
 
+#define MAXMQSYSTEM 10
 void fill_param(const char * addr, uint16_t port, struct sockaddr_in &in);
 void fill_param_self(uint16_t port, struct sockaddr_in &in);
 bool addr_comparable(const sockaddr_in &id, const sockaddr_in &addr);
@@ -81,16 +82,20 @@ public:
         void lock() {
             if (!sem || ignored)
                 return;
+            LOG() << "LOCK : trying get " << sem << "\n";
             if (sem_wait(sem) == -1)
                throw fuck(
                        "sock lock err " );
+            LOG() << "LOCK : got " << sem << "\n";
         }
         void unlock() {
             if (!sem || ignored)
                 return;
+            LOG() << "UNLOCK : trying " << sem << "\n";
             if (sem_post(sem) == -1)
                 throw fuck(
                         "sock unlock err " );
+            LOG() << "UNLOCK : finished " << sem << "\n";
         }
         bool have() {
             if (ignored)
@@ -110,24 +115,30 @@ public:
             }
             void wait() {
                 LOG() << "waiting sem " << (void*)sem << "\n";
+                LOG() << "WAIT NOTIF : trying get " << sem << "\n";
                 if (sem_wait(sem) == -1)
                    throw fuck(
                            "sock lock err " );
+                LOG() << "WAIT NOTIF : got " << sem << "\n";
             }
             void wait_for(std::chrono::milliseconds ms) {
                 struct timespec spec;
                 ms += std::chrono::milliseconds(sys_time());
                 convert_to_timespec(ms ,spec);
+                LOG() << "WAIT NOTIF TIMED: trying get " << sem << "\n";
                 if (sem_timedwait(sem, &spec) == -1) {
                     if (errno != ETIMEDOUT)
                        throw fuck(
                                "sock lock err " );
                 }
+                LOG() << "WAIT NOTIF TIMED: got " << sem << "\n";
             }
             void notify() {
+                LOG() << "SIGNAL NOTIF: trying get " << sem << "\n";
                 if (sem_post(sem) == -1)
                     throw fuck(
                             "sock unlock err " );
+                LOG() << "SIGNAL  NOTIF : got " << sem << "\n";
             }
         public:
             sem_t * sem;
