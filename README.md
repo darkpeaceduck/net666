@@ -11,3 +11,4 @@
 - Duplex handshake
 - Reuseport feature support
 - User chat on implemented sockets
+- Boost testing
